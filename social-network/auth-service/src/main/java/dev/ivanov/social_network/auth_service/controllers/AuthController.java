@@ -12,26 +12,26 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@RequestBody SignInDto signInDto) {
-
+        return null;
     }
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@RequestBody SignUpDto signUpDto) {
-
+        return null;
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestBody RefreshDto refreshDto) {
-
+        return null;
     }
 
     @PutMapping("/change-password")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
-
+        return null;
     }
 
     @DeleteMapping("/delete-account/{accountId}")
     public ResponseEntity<?> deleteAccount(@PathVariable String accountId) {
-
+        return null;
     }
 }

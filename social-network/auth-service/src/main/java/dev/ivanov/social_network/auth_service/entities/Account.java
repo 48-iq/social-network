@@ -18,9 +18,11 @@ public class Account {
     private String username;
     private String password;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "accounts_roles",
             joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_name", referencedColumnName = "name"))
     private List<Role> roles;
+
+    private Boolean deleted;
 }
