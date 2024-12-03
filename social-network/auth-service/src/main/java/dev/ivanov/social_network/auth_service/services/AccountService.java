@@ -10,9 +10,11 @@ import dev.ivanov.social_network.auth_service.repositories.RoleRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,6 +25,7 @@ import java.util.Optional;
 @Service
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class AccountService {
 
     @Autowired
@@ -35,6 +38,9 @@ public class AccountService {
     private RestTemplate restTemplate;
 
     @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
     private RoleRepository roleRepository;
 
     @Transactional
@@ -42,10 +48,14 @@ public class AccountService {
         String uuidServiceUri = gatewayUri + "/uuid";
         ResponseEntity<String> generatedIdEntity = restTemplate.getForEntity(uuidServiceUri, String.class);
 
-        if (generatedIdEntity.getStatusCode().isError())
+        if (generatedIdEntity.getStatusCode().isError()) {
+            log.error("uuid service error, code: {}", generatedIdEntity.getStatusCode());
             throw new RemoteServiceException("uuid service error, code: " + generatedIdEntity.getStatusCode());
+        }
 
         String generatedId = generatedIdEntity.getBody();
+
+        log.trace("uuid {} has been created", generatedId);
 
         List<Role> roles = new ArrayList<>();
 
@@ -57,13 +67,19 @@ public class AccountService {
         Account account = Account.builder()
                 .id(generatedId)
                 .username(signUpDto.getUsername())
-                .password(signUpDto.getPassword())
+                .password(passwordEncoder.encode(signUpDto.getPassword()))
                 .roles(roles)
                 .build();
 
         Account savedAccount = accountRepository.save(account);
 
+        log.trace("account {} has been created", account.getId());
         return savedAccount;
+    }
+
+    @Transactional
+    public void changePassword(String accountId, String password) {
+
     }
 
     @Transactional
@@ -74,6 +90,8 @@ public class AccountService {
             Account account = accountOptional.get();
             account.setDeleted(true);
             accountRepository.save(account);
+
+            log.trace("account {} has been deleted", account.getId());
         }
     }
 }

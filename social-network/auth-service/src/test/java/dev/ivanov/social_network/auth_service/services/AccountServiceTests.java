@@ -10,9 +10,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Optional;
 
 public class AccountServiceTests {
 
@@ -20,10 +22,12 @@ public class AccountServiceTests {
     RestTemplate restTemplate;
     RoleRepository roleRepository;
     AccountService accountService;
+    PasswordEncoder passwordEncoder;
     String gatewayUri = "http://gateway:8080";
 
     @BeforeEach
     public void setup() {
+        passwordEncoder = Mockito.mock(PasswordEncoder.class);
         accountRepository = Mockito.mock(AccountRepository.class);
         restTemplate = Mockito.mock(RestTemplate.class);
         roleRepository = Mockito.mock(RoleRepository.class);
@@ -31,6 +35,7 @@ public class AccountServiceTests {
                 accountRepository,
                 gatewayUri,
                 restTemplate,
+                passwordEncoder,
                 roleRepository
         );
     }
@@ -47,16 +52,19 @@ public class AccountServiceTests {
 
         String uuidServiceUri = gatewayUri + "/uuid";
 
+        String testId = "test_id";
+
         Account account = Account.builder()
-                .id("test_id")
+                .id(testId)
                 .username("test_username")
                 .password("test_password")
                 .roles(List.of(role))
                 .build();
 
+        Mockito.when(passwordEncoder.encode("test_password")).thenReturn("encoded_test_password");
         Mockito.when(roleRepository.getReferenceById(roleName)).thenReturn(role);
-        Mockito.when(restTemplate.getForEntity(uuidServiceUri, String.class)).thenReturn(ResponseEntity.ok("test_id"));
-        Mockito.when(accountRepository.save(account)).thenReturn(account);
+        Mockito.when(restTemplate.getForEntity(uuidServiceUri, String.class)).thenReturn(ResponseEntity.ok(testId));
+        Mockito.when(accountRepository.save(Mockito.any(Account.class))).thenReturn(account);
 
         SignUpDto signUpDto = SignUpDto.builder()
                 .username("test_username")
@@ -66,6 +74,27 @@ public class AccountServiceTests {
 
         Account accountCreationResult = accountService.createAccount(signUpDto);
         Assertions.assertEquals(account.getId(), accountCreationResult.getId());
-        Mockito.verify(accountRepository, Mockito.calls(1));
+        Mockito.verify(accountRepository).save(Mockito.any(Account.class));
+    }
+
+    @Test
+    public void whenDeleteAccount_thenDeleteAccountInDb() {
+        String accountId = "test_id";
+
+        Account account = Account.builder()
+                .id(accountId)
+                .username("test_username")
+                .password("test_password")
+                .deleted(false)
+                .build();
+
+        Mockito.when(accountRepository.findById(accountId)).thenReturn(Optional.of(account));
+
+        accountService.deleteAccount(accountId);
+
+        Assertions.assertTrue(account.getDeleted());
+
+        Mockito.verify(accountRepository).save(account);
+
     }
 }

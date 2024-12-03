@@ -7,19 +7,35 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import dev.ivanov.social_network.auth_service.dto.JwtDto;
 import dev.ivanov.social_network.auth_service.entities.Account;
 import dev.ivanov.social_network.auth_service.entities.Role;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
 import java.util.Map;
 
 @Component
+@NoArgsConstructor
+@AllArgsConstructor
 public class JwtUtils {
 
+    @Value("${app.jwt.issuer}")
     private String issuer;
+
+    @Value("${app.jwt.subject}")
     private String subject;
+
+    @Value("${app.jwt.accessSecret}")
     private String accessSecret;
+
+    @Value("${app.jwt.refreshSecret}")
     private String refreshSecret;
+
+    @Value("${app.jwt.accessDuration}")
     private Integer accessDuration;
+
+    @Value("${app.jwt.refreshDuration}")
     private Integer refreshDuration;
 
     public String generateAccess(Account account) {

@@ -11,4 +11,7 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<Account, String> {
     @Query("select a from Account a where a.username = :username and not a.deleted")
     Optional<Account> findAccountByUsername(String username);
+
+    @Query("select count(a) > 0 from Account a where a.username = :username and not a.deleted")
+    boolean existsAccountByUsername(String username);
 }
