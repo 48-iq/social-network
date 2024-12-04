@@ -28,4 +28,5 @@ public class KafkaConfig {
                 .partitions(3)
                 .build();
     }
+
 }

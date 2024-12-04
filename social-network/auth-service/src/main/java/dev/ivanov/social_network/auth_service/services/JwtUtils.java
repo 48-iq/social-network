@@ -3,6 +3,7 @@ package dev.ivanov.social_network.auth_service.services;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import dev.ivanov.social_network.auth_service.dto.JwtDto;
 import dev.ivanov.social_network.auth_service.entities.Account;
@@ -12,7 +13,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Map;
 
 @Component
@@ -26,16 +29,16 @@ public class JwtUtils {
     @Value("${app.jwt.subject}")
     private String subject;
 
-    @Value("${app.jwt.accessSecret}")
+    @Value("${app.jwt.access-secret}")
     private String accessSecret;
 
-    @Value("${app.jwt.refreshSecret}")
+    @Value("${app.jwt.refresh-secret}")
     private String refreshSecret;
 
-    @Value("${app.jwt.accessDuration}")
+    @Value("${app.jwt.access-duration}")
     private Integer accessDuration;
 
-    @Value("${app.jwt.refreshDuration}")
+    @Value("${app.jwt.refresh-duration}")
     private Integer refreshDuration;
 
     public String generateAccess(Account account) {
@@ -87,5 +90,10 @@ public class JwtUtils {
                 .build();
 
         return jwtVerifier.verify(refresh).getClaims();
+    }
+
+    public Instant decodeJwtAndRetrieveIssuedAt(String jwt) {
+        DecodedJWT decodedJwt = JWT.decode(jwt);
+        return decodedJwt.getIssuedAt().toInstant();
     }
 }

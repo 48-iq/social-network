@@ -4,6 +4,7 @@ import dev.ivanov.social_network.auth_service.dto.JwtDto;
 import dev.ivanov.social_network.auth_service.dto.SignUpDto;
 import dev.ivanov.social_network.auth_service.entities.Account;
 import dev.ivanov.social_network.auth_service.entities.Role;
+import dev.ivanov.social_network.auth_service.exceptions.AccountNotFoundException;
 import dev.ivanov.social_network.auth_service.exceptions.RemoteServiceException;
 import dev.ivanov.social_network.auth_service.repositories.AccountRepository;
 import dev.ivanov.social_network.auth_service.repositories.RoleRepository;
@@ -49,7 +50,6 @@ public class AccountService {
         ResponseEntity<String> generatedIdEntity = restTemplate.getForEntity(uuidServiceUri, String.class);
 
         if (generatedIdEntity.getStatusCode().isError()) {
-            log.error("uuid service error, code: {}", generatedIdEntity.getStatusCode());
             throw new RemoteServiceException("uuid service error, code: " + generatedIdEntity.getStatusCode());
         }
 
@@ -79,7 +79,10 @@ public class AccountService {
 
     @Transactional
     public void changePassword(String accountId, String password) {
-
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("account with id " + accountId + " not found"));
+        account.setPassword(passwordEncoder.encode(password));
+        accountRepository.save(account);
     }
 
     @Transactional
@@ -94,4 +97,5 @@ public class AccountService {
             log.trace("account {} has been deleted", account.getId());
         }
     }
+
 }

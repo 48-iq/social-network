@@ -19,6 +19,7 @@ public class AuthServiceTests {
     AccountService accountService;
     AccountRepository accountRepository;
     JwtUtils jwtUtils;
+    BlacklistJwtService blacklistJwtService;
 
     @BeforeEach
     public void setup() {
@@ -26,10 +27,12 @@ public class AuthServiceTests {
         accountService = Mockito.mock(AccountService.class);
         jwtUtils = Mockito.mock(JwtUtils.class);
         accountRepository = Mockito.mock(AccountRepository.class);
+        blacklistJwtService = Mockito.mock(BlacklistJwtService.class);
         authService = new AuthService(accountRepository,
                 accountService,
                 authenticationManager,
-                jwtUtils);
+                jwtUtils,
+                blacklistJwtService);
     }
 
 
