@@ -5,9 +5,11 @@ import dev.ivanov.social_network.auth_service.dto.*;
 import dev.ivanov.social_network.auth_service.entities.Account;
 import dev.ivanov.social_network.auth_service.exceptions.AccountNotFoundException;
 import dev.ivanov.social_network.auth_service.exceptions.ActionWithDeletedAccountException;
+import dev.ivanov.social_network.auth_service.exceptions.BlacklistJwtException;
 import dev.ivanov.social_network.auth_service.exceptions.RemoteServiceException;
 import dev.ivanov.social_network.auth_service.producers.AccountEventsProducer;
 import dev.ivanov.social_network.auth_service.security.UserDetailsImpl;
+import dev.ivanov.social_network.auth_service.services.AccountService;
 import dev.ivanov.social_network.auth_service.services.AuthService;
 import dev.ivanov.social_network.auth_service.validators.ChangePasswordDtoValidator;
 import dev.ivanov.social_network.auth_service.validators.SignUpDtoValidator;
@@ -40,6 +42,9 @@ public class AuthController {
     @Autowired
     private AccountEventsProducer accountEventsProducer;
 
+    @Autowired
+    private AccountService accountService;
+
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@RequestBody SignInDto signInDto) {
         try {
@@ -47,7 +52,6 @@ public class AuthController {
             return ResponseEntity.ok(jwtDto);
 
         } catch (AccountNotFoundException | UsernameNotFoundException e) {
-
             log.error(e.getMessage());
             return ResponseEntity.notFound().build();
 
@@ -59,7 +63,6 @@ public class AuthController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@RequestBody SignUpDto signUpDto) {
-
         try {
             Errors errors = new BeanPropertyBindingResult(signUpDto, "signUpDto");
             signUpDtoValidator.validate(signUpDto, errors);
@@ -72,11 +75,11 @@ public class AuthController {
             JwtDto jwtDto = authService.signUp(signUpDto);
 
             return ResponseEntity.ok(jwtDto);
+
         } catch (RemoteServiceException e) {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
     }
 
     @PostMapping("/refresh")
@@ -84,7 +87,8 @@ public class AuthController {
         try {
             JwtDto jwtDto = authService.refresh(refreshDto);
             return ResponseEntity.ok(jwtDto);
-        } catch (JWTVerificationException | ActionWithDeletedAccountException |  e) {
+
+        } catch (JWTVerificationException | ActionWithDeletedAccountException | BlacklistJwtException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
@@ -107,11 +111,17 @@ public class AuthController {
             Account account = userDetails.getAccount();
 
             authService.changePassword(account.getId(), changePasswordDto);
-        } catch ()
+
+            return ResponseEntity.ok().build();
+
+        } catch (JWTVerificationException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @DeleteMapping("/delete-account/{accountId}")
     public ResponseEntity<?> deleteAccount(@PathVariable String accountId) {
-        return null;
+        accountService.deleteAccount(accountId);
+        return ResponseEntity.ok().build();
     }
 }
