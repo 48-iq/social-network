@@ -62,8 +62,8 @@ public class AuthServiceTests {
 
         authService.signIn(signInDto);
 
-        Mockito.verify(authenticationManager.authenticate(Mockito.any(UsernamePasswordAuthenticationToken.class)));
-        Mockito.verify(jwtUtils.generateJwt(account));
+        Mockito.verify(authenticationManager).authenticate(Mockito.any(UsernamePasswordAuthenticationToken.class));
+        Mockito.verify(jwtUtils).generateJwt(account);
     }
 
     @Test
@@ -92,8 +92,8 @@ public class AuthServiceTests {
 
         authService.signUp(signUpDto);
 
-        Mockito.verify(accountService.createAccount(signUpDto));
-        Mockito.verify(jwtUtils.generateJwt(account));
+        Mockito.verify(accountService).createAccount(signUpDto);
+        Mockito.verify(jwtUtils).generateJwt(account);
     }
 
 
