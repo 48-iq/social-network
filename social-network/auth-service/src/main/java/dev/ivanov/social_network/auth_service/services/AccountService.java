@@ -4,8 +4,11 @@ import dev.ivanov.social_network.auth_service.dto.JwtDto;
 import dev.ivanov.social_network.auth_service.dto.SignUpDto;
 import dev.ivanov.social_network.auth_service.entities.Account;
 import dev.ivanov.social_network.auth_service.entities.Role;
+import dev.ivanov.social_network.auth_service.events.Actions;
 import dev.ivanov.social_network.auth_service.exceptions.AccountNotFoundException;
+import dev.ivanov.social_network.auth_service.exceptions.EventNotSentException;
 import dev.ivanov.social_network.auth_service.exceptions.RemoteServiceException;
+import dev.ivanov.social_network.auth_service.producers.AccountEventsProducer;
 import dev.ivanov.social_network.auth_service.repositories.AccountRepository;
 import dev.ivanov.social_network.auth_service.repositories.RoleRepository;
 import jakarta.transaction.Transactional;
@@ -44,6 +47,9 @@ public class AccountService {
     @Autowired
     private RoleRepository roleRepository;
 
+    @Autowired
+    private AccountEventsProducer accountEventsProducer;
+
     @Transactional
     public Account createAccount(SignUpDto signUpDto) {
         String uuidServiceUri = gatewayUri + "/uuid";
@@ -72,6 +78,12 @@ public class AccountService {
                 .build();
 
         Account savedAccount = accountRepository.save(account);
+
+        try {
+            accountEventsProducer.send(Actions.CREATE, account.getId());
+        } catch (EventNotSentException e) {
+            deleteAccount(account.getId());
+        }
 
         log.trace("account {} has been created", account.getId());
         return savedAccount;

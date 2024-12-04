@@ -3,10 +3,7 @@ package dev.ivanov.social_network.auth_service.controllers;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import dev.ivanov.social_network.auth_service.dto.*;
 import dev.ivanov.social_network.auth_service.entities.Account;
-import dev.ivanov.social_network.auth_service.exceptions.AccountNotFoundException;
-import dev.ivanov.social_network.auth_service.exceptions.ActionWithDeletedAccountException;
-import dev.ivanov.social_network.auth_service.exceptions.BlacklistJwtException;
-import dev.ivanov.social_network.auth_service.exceptions.RemoteServiceException;
+import dev.ivanov.social_network.auth_service.exceptions.*;
 import dev.ivanov.social_network.auth_service.producers.AccountEventsProducer;
 import dev.ivanov.social_network.auth_service.security.UserDetailsImpl;
 import dev.ivanov.social_network.auth_service.services.AccountService;
@@ -28,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
     private AuthService authService;
@@ -38,9 +35,6 @@ public class AuthController {
 
     @Autowired
     private ChangePasswordDtoValidator changePasswordDtoValidator;
-
-    @Autowired
-    private AccountEventsProducer accountEventsProducer;
 
     @Autowired
     private AccountService accountService;
@@ -73,7 +67,6 @@ public class AuthController {
                         .map(DefaultMessageSourceResolvable::getDefaultMessage));
 
             JwtDto jwtDto = authService.signUp(signUpDto);
-
             return ResponseEntity.ok(jwtDto);
 
         } catch (RemoteServiceException e) {

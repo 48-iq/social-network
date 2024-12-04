@@ -3,6 +3,7 @@ package dev.ivanov.social_network.auth_service.services;
 import dev.ivanov.social_network.auth_service.dto.SignUpDto;
 import dev.ivanov.social_network.auth_service.entities.Account;
 import dev.ivanov.social_network.auth_service.entities.Role;
+import dev.ivanov.social_network.auth_service.producers.AccountEventsProducer;
 import dev.ivanov.social_network.auth_service.repositories.AccountRepository;
 import dev.ivanov.social_network.auth_service.repositories.RoleRepository;
 import org.junit.jupiter.api.Assertions;
@@ -23,6 +24,7 @@ public class AccountServiceTests {
     RoleRepository roleRepository;
     AccountService accountService;
     PasswordEncoder passwordEncoder;
+    AccountEventsProducer accountEventsProducer;
     String gatewayUri = "http://gateway:8080";
 
     @BeforeEach
@@ -31,12 +33,14 @@ public class AccountServiceTests {
         accountRepository = Mockito.mock(AccountRepository.class);
         restTemplate = Mockito.mock(RestTemplate.class);
         roleRepository = Mockito.mock(RoleRepository.class);
+        accountEventsProducer = Mockito.mock(AccountEventsProducer.class);
         accountService = new AccountService(
                 accountRepository,
                 gatewayUri,
                 restTemplate,
                 passwordEncoder,
-                roleRepository
+                roleRepository,
+                accountEventsProducer
         );
     }
 

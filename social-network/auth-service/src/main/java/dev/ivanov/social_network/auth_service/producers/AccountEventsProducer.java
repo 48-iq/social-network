@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import dev.ivanov.social_network.auth_service.config.KafkaConfig;
 import dev.ivanov.social_network.auth_service.events.AccountEvent;
+import dev.ivanov.social_network.auth_service.exceptions.EventNotSentException;
 import dev.ivanov.social_network.auth_service.services.AccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class AccountEventsProducer {
 
         } catch (InterruptedException|ExecutionException|JsonProcessingException e) {
             log.error(e.getMessage());
-            accountService.deleteAccount(accountId);
+            throw new EventNotSentException("account with id " + accountId + " not sent");
         }
 
     }

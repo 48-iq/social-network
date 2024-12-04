@@ -3,6 +3,7 @@ package dev.ivanov.social_network.auth_service.authorizers;
 import dev.ivanov.social_network.auth_service.entities.Account;
 import dev.ivanov.social_network.auth_service.repositories.AccountRepository;
 import dev.ivanov.social_network.auth_service.security.UserDetailsImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -10,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.function.Supplier;
 
 
@@ -28,5 +30,16 @@ public class AccountAuthorizer implements AuthorizationManager<RequestAuthorizat
         }
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         Account account = userDetails.getAccount();
+        if (account == null)
+            return new AuthorizationDecision(false);
+
+        HttpServletRequest request = requestAuthorizationContext.getRequest();
+        Map<String, String> variables = requestAuthorizationContext.getVariables();
+        String accountId = variables.get("accountId");
+
+        if (account.getId() == null || !account.getId().equals(accountId))
+            return new AuthorizationDecision(false);
+
+        return new AuthorizationDecision(true);
     }
 }
