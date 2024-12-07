@@ -45,7 +45,7 @@ public class AccountEventsProducer {
 
         } catch (InterruptedException|ExecutionException|JsonProcessingException e) {
             log.error(e.getMessage());
-            throw new EventNotSentException("account with id " + accountId + " not sent");
+            throw new EventNotSentException("event with id " + accountId + " not sent");
         }
 
     }

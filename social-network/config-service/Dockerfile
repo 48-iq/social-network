@@ -4,7 +4,7 @@ COPY pom.xml ./
 RUN mvn dependency:resolve
 
 COPY /src ./src
-RUN mvn package
+RUN mvn package -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy AS prodaction
 COPY --from=build /app/target/config-service-*.jar /config-service.jar

@@ -7,6 +7,6 @@ COPY /src ./src
 RUN mvn package -DskipTests
 
 FROM eclipse-temurin:21-jre-jammy AS prodaction
-COPY --from=build /app/target/auth-service-*.jar /auth-service.jar
+COPY --from=build /app/target/uuid-service-*.jar /uuid-service.jar
 EXPOSE 8080
-CMD ["java", "-jar", "auth-service.jar"]
+CMD ["java", "-jar", "uuid-service.jar"]

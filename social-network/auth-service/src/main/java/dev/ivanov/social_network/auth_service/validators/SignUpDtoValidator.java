@@ -46,14 +46,17 @@ public class SignUpDtoValidator implements Validator {
 
         if (password == null || !password.matches("^.{8,128}$"))
             errors.reject("password", "password is incorrect");
+        if (roleNames == null)
+            errors.reject("roles", "roles is incorrect");
+        else {
+            for (String roleName : roleNames) {
+                if (allRoles.stream().noneMatch(role -> role.getName().equals(roleName))) {
+                    errors.reject("roles", "role " + roleName + " is incorrect");
+                }
 
-        for (String roleName: roleNames) {
-            if (allRoles.stream().noneMatch(role -> role.getName().equals(roleName))) {
-                errors.reject("roles", "role" + roleName + " is incorrect");
-            }
-
-            if (roleName.equals("ROLE_ADMIN") && adminPassword.equals(validatedAdminPassword)) {
-                errors.reject("adminPassword", "admin password is incorrect");
+                if (roleName.equals("ROLE_ADMIN") && !adminPassword.equals(validatedAdminPassword)) {
+                    errors.reject("adminPassword", "admin password is incorrect");
+                }
             }
         }
 

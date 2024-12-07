@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +53,7 @@ public class AccountService {
 
     @Transactional
     public Account createAccount(SignUpDto signUpDto) {
-        String uuidServiceUri = gatewayUri + "/uuid";
+        String uuidServiceUri = gatewayUri + "/api/uuid";
         ResponseEntity<String> generatedIdEntity = restTemplate.getForEntity(uuidServiceUri, String.class);
 
         if (generatedIdEntity.getStatusCode().isError()) {
@@ -74,6 +75,8 @@ public class AccountService {
                 .id(generatedId)
                 .username(signUpDto.getUsername())
                 .password(passwordEncoder.encode(signUpDto.getPassword()))
+                .createdAt(ZonedDateTime.now().toInstant())
+                .deleted(false)
                 .roles(roles)
                 .build();
 

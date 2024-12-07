@@ -3,6 +3,7 @@ package dev.ivanov.social_network.auth_service.entities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @Entity
@@ -17,6 +18,7 @@ public class Account {
     private String id;
     private String username;
     private String password;
+    private Instant createdAt;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "accounts_roles",

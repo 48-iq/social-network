@@ -112,8 +112,8 @@ public class AuthController {
         }
     }
 
-    @DeleteMapping("/delete-account/{accountId}")
-    public ResponseEntity<?> deleteAccount(@PathVariable String accountId) {
+    @DeleteMapping("/delete-account")
+    public ResponseEntity<?> deleteAccount(@RequestParam("account_id") String accountId) {
         accountService.deleteAccount(accountId);
         return ResponseEntity.ok().build();
     }

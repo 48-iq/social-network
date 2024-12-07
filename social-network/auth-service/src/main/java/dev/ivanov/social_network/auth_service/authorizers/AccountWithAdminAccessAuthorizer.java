@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 
 @Component
-public class AccountAuthorizer implements AuthorizationManager<RequestAuthorizationContext> {
+public class AccountWithAdminAccessAuthorizer implements AuthorizationManager<RequestAuthorizationContext> {
 
     @Autowired
     private AccountRepository accountRepository;
@@ -29,9 +29,13 @@ public class AccountAuthorizer implements AuthorizationManager<RequestAuthorizat
             return new AuthorizationDecision(false);
         }
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
         Account account = userDetails.getAccount();
         if (account == null)
             return new AuthorizationDecision(false);
+
+        if (account.getRoles() != null && account.getRoles().stream().anyMatch(r -> r.getName().equals("ROLE_ADMIN")))
+            return new AuthorizationDecision(true);
 
         HttpServletRequest request = requestAuthorizationContext.getRequest();
         Map<String, String> variables = requestAuthorizationContext.getVariables();

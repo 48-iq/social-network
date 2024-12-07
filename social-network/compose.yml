@@ -23,6 +23,12 @@ services:
       - 8761:8761
     networks:
       - backend
+    healthcheck:
+      test: "curl -sf http://localhost:8761/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     depends_on:
       config-service:
         condition: service_healthy
@@ -38,6 +44,8 @@ services:
     depends_on:
       config-service:
         condition: service_healthy
+      discovery-service:
+        condition: service_healthy
 
   auth-service:
     build:
@@ -52,9 +60,34 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+      discovery-service:
+        condition: service_healthy
       kafka:
         condition: service_healthy
       redis:
+        condition: service_healthy
+
+  kafka-ui:
+    image: quay.io/cloudhut/kowl:master
+    environment:
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - 8083:8080
+    networks:
+      - backend
+
+  uuid-service:
+    build:
+      context: uuid-service
+      dockerfile: Dockerfile
+    ports:
+      - 0:8080
+    networks:
+      - backend
+    depends_on:
+      config-service:
+        condition: service_healthy
+      discovery-service:
         condition: service_healthy
 
 
