@@ -1,10 +1,9 @@
 package dev.ivanov.social_network.auth_service.services;
 
-import dev.ivanov.social_network.auth_service.dto.JwtDto;
 import dev.ivanov.social_network.auth_service.dto.SignUpDto;
 import dev.ivanov.social_network.auth_service.entities.Account;
 import dev.ivanov.social_network.auth_service.entities.Role;
-import dev.ivanov.social_network.auth_service.events.Actions;
+import dev.ivanov.social_network.auth_service.events.AccountEvent;
 import dev.ivanov.social_network.auth_service.exceptions.AccountNotFoundException;
 import dev.ivanov.social_network.auth_service.exceptions.EventNotSentException;
 import dev.ivanov.social_network.auth_service.exceptions.RemoteServiceException;
@@ -83,7 +82,7 @@ public class AccountService {
         Account savedAccount = accountRepository.save(account);
 
         try {
-            accountEventsProducer.send(Actions.CREATE, account.getId());
+            accountEventsProducer.send(AccountEvent.ACTION_CREATE, account.getId());
         } catch (EventNotSentException e) {
             deleteAccount(account.getId());
         }

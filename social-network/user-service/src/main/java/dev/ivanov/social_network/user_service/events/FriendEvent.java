@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountEvent {
-    public static final String ACTION_DELETE = "delete";
-    public static final String ACTION_CREATE = "create";
+public class FriendEvent {
 
-    private String action;
+    public static final String ACTION_FRIEND = "friend";
+    public static final String ACTION_UNFRIEND = "unfriend";
+
     private String creatorId;
-    private String accountId;
+    private String action;
+    private String firstUserId;
+    private String secondUserId;
 }

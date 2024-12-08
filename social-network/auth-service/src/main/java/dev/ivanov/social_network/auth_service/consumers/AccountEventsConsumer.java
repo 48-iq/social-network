@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.ivanov.social_network.auth_service.config.KafkaConfig;
 import dev.ivanov.social_network.auth_service.events.AccountEvent;
-import dev.ivanov.social_network.auth_service.events.Actions;
 import dev.ivanov.social_network.auth_service.services.AccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class AccountEventsConsumer {
         try {
             AccountEvent accountEvent = objectMapper.readValue(accountEventJson, AccountEvent.class);
             if (!accountEvent.getCreatorId().equals(creatorId)) {
-                if (accountEvent.getAction().equals(Actions.DELETE)) {
+                if (accountEvent.getAction().equals(AccountEvent.ACTION_DELETE)) {
                     accountService.deleteAccount(accountEvent.getAccountId());
                 }
             }

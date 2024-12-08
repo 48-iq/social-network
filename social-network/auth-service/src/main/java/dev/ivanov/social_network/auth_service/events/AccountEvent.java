@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class AccountEvent {
+    public static final String ACTION_DELETE = "delete";
+    public static final String ACTION_CREATE = "create";
     private String action;
     private String creatorId;
     private String accountId;

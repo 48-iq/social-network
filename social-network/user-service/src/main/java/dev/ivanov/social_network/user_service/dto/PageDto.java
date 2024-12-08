@@ -5,17 +5,16 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserDto {
-    private String id;
-    private String nickname;
-    private String name;
-    private String surname;
-    private String email;
-    private String phone;
-    private String avatarImageId;
-
+public class PageDto<T> {
+    private List<T> data;
+    private Integer size;
+    private Integer page;
+    private Integer totalPages;
+    private Long totalElements;
 }
